@@ -9,7 +9,7 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // Define remap base directory
-define ( "REMAP_BASE", dirname ( __FILE__ ) . "/" );
+define ( "QUEUE_BASE", dirname ( __FILE__ ) . "/" );
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
@@ -20,7 +20,7 @@ require_once '../vendor/autoload.php';
 
 // defining word
 define ( "PHP", ".php", TRUE);
-define ( "REMAP", "App/System/Remap" . PHP, TRUE );
+define ( "QUEUE", "App/System/Queue" . PHP, TRUE );
 define ( "DATABASE", "App/System/Database" . PHP, TRUE );
 define ( "CONFIG", "App/System/Config" . PHP, TRUE );
 define ( "DEP", "App/System/Dependencies" . PHP, TRUE );
@@ -33,7 +33,7 @@ require_once ( CONFIG );
 
 // Inisiate the Apps
 // ===============================================================================================
-$rmp = new \Slim\App( $config );
+$queue = new \Slim\App( $config );
 
 // set Dependencies
 // require_once ( DEP );
@@ -42,7 +42,7 @@ $rmp = new \Slim\App( $config );
 require_once ( DATABASE );
 
 // Requiring Remap Engine
-require_once ( REMAP );
+require_once ( QUEUE );
 
 // set Middleware
 require_once ( MIDDLEWARE );
@@ -53,9 +53,9 @@ require_once ( ROUTER );
 // ===============================================================================================
 // CORS Setup
 // ===============================================================================================
-$rmp->add(function ($req, $res, $next) {
+$queue->add(function ($req, $res, $next) {
     $response = $next($req, $res);
-    return $response->withHeader('Access-Control-Allow-Origin', 'https://remap.id/')
+    return $response->withHeader('Access-Control-Allow-Origin', 'https://queue.id/')
                     ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
                     ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
@@ -63,6 +63,6 @@ $rmp->add(function ($req, $res, $next) {
 // ===============================================================================================
 // Run the App
 // ===============================================================================================
-$rmp->run();
+$queue->run();
 
 ?>

@@ -15,7 +15,7 @@ $this->get ('/list', \Hello::class . ":get");
 $this->post('/myname', \Hello::class . ":postMyName");
 $this->post('/new', \Hello::class . ":addNew");
 
-class Hello extends Remap {
+class Hello extends Queue {
 
 
     // *

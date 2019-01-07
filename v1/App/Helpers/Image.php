@@ -6,7 +6,7 @@
  *
  **/
 
-class ImageHelper extends Remap{
+class ImageHelper extends Queue{
 
 
     // Upload Destination Path

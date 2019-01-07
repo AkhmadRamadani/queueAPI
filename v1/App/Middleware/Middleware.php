@@ -3,7 +3,7 @@
 
 
 
-class Filter extends Remap { 
+class Filter extends Queue { 
 
 
     /**

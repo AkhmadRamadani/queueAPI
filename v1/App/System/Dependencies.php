@@ -1,7 +1,7 @@
 <?php
 // DIC configuration
 
-$container = $rmp->getContainer ();
+$container = $queue->getContainer ();
 
 // Database connection
 $container['db'] = function ( $c ) {

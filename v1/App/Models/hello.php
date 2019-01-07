@@ -4,7 +4,7 @@
 // *    Author: Alfan Hidayatullah
 // *
 
-class helloModel extends Remap {
+class helloModel extends Queue {
 
 
     // *

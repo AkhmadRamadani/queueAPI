@@ -3,19 +3,22 @@
 // Controller Registration
 // ===============================================================================================
 $controllers = array ( 
-    "Hello",
+    "Hello","Auth","Place"
 );
-
+//
+$helper = array(
+    "Image"
+);
 // **
 // *
 // *    Default Router
 // *
 // **
-$rmp->map(['GET', 'POST'], '/', function( $request, $response, $args ) {
+$queue->map(['GET', 'POST'], '/', function( $request, $response, $args ) {
 
     return $response->withJSON (
         array (
-            "name"          => "Remap REST API",
+            "name"          => "QUEUE REST API",
             "version"       => "1.0",
             "description"   => "Authentication is needed to access the API."
         )
@@ -29,11 +32,11 @@ $rmp->map(['GET', 'POST'], '/', function( $request, $response, $args ) {
 // **
 function requiringRouter ( $i = 0 ) {
 
-    global $controllers, $rmp;
+    global $controllers, $queue;
 
     $_SESSION['controllerName'] = $controllers[$i];
     
-    $rmp->group( '/' . strtolower ( $_SESSION['controllerName'] ), function()
+    $queue->group( '/' . strtolower ( $_SESSION['controllerName'] ), function()
     {
         if ( file_exists ( CONTROLLER . ucfirst( $_SESSION['controllerName'] ) . PHP ) ) {
             require_once ( CONTROLLER . ucfirst( $_SESSION['controllerName'] ) . PHP );
