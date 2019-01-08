@@ -12,6 +12,7 @@
     $this->post ('/resetQueue', \Place::class . ":resetQueue");
     $this->get ('/openPlace', \Place::class . ":getOpenPlace");
     $this->post ('/takeQueue', \Place::class . ":takeQueue");
+    $this->post ('/getOnProcessKode', \Place::class . ":getOnProcessKode");
     $this->post ('/sisaAntrean', \Place::class . ":getSisaAntrean");
 
     class Place extends Queue
@@ -282,6 +283,17 @@
             ));
             return $response->withJSON(array(
                 "data" => $select
+            ));
+        }
+        public function getOnProcessKode($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $select = $this->placeModel->getOnProcessKode(array(
+                ':id_place' => $this->params['id_place']
+            ));
+            return $response->withJSON(array(
+                 "data"=> $select
             ));
         }
     }

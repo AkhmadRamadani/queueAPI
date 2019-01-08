@@ -133,6 +133,15 @@
             $select->execute($params);
             return $select->fetchColumn();  
         }
+        public function getOnProcessKode($params)
+        {
+            $select = $this->db->prepare("
+                SELECT queue_code from `queue` WHERE `status` = 'on' and id_place = :id_place
+            ");
+            $select->execute($params);
+    
+            return $select->fetchColumn();
+        }
     }
 
 
