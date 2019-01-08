@@ -5,8 +5,8 @@
         public function getRegisterPlace ($params) {
 
             $insert = $this->db->prepare ("
-                INSERT INTO `place` (`id_place`, `name`, `address`, `picture`, `id_user`,`status`) 
-                VALUES (NULL, :name, :address, :picture, :id_user , 'open')
+                INSERT INTO `place` (`id_place`, `name`, `address`, `picture`, `id_user`,`status`,`inisial`) 
+                VALUES (NULL, :name, :address, :picture, :id_user , 'open', :inisial)
             ");
     
             return $insert->execute ($params);
@@ -16,7 +16,7 @@
         public function getQueue ($params) {
 
             $insert = $this->db->prepare ("
-                INSERT INTO `queue` (`id_place`, `id_user`, `queue_code`, `status`, `id_queue`) VALUES (:id_place, :id_user, :queue_code, :status, NULL)
+                INSERT INTO `queue` (`id_place`, `id_user`, `queue_code`, `status`, `id_queue`) VALUES (:id_place, :id_user, :queue_code, 'waiting', NULL)
             ");
     
             return $insert->execute ($params);
@@ -83,6 +83,55 @@
             $select->execute($params);
     
             return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
+        public function getMyPlace($params)
+        {
+            $select = $this->db->prepare("
+                SELECT * from `place` WHERE `id_user` = :id_user 
+            ");
+            $select->execute($params);
+    
+            return $select->fetch(PDO::FETCH_ASSOC);
+        }
+        public function lastInsertId($params) {
+
+            $select = $this->db->prepare("
+                SELECT count(*) FROM `queue` WHERE `id_place` = :id_place 
+            ");
+            $select->execute($params);
+            return $select->fetchColumn();  
+        }
+        public function getInisial($params) {
+
+            $select = $this->db->prepare("
+                SELECT inisial FROM `place` WHERE `id_place` = :id_place 
+            ");
+            $select->execute($params);
+            return $select->fetchColumn();  
+        }
+        public function backUpData($params)
+        {
+            $backup = $this->db->prepare("
+                INSERT INTO backup_queue (`id_place`, `id_user`, `queue_code`, `status`) 
+                SELECT `id_place` , `id_user`, `queue_code` , `status` FROM queue WHERE `id_place` = :id_place                
+            ");
+            return $backup->execute ($params);
+        }
+        public function resetData($params)
+        {
+            $delete = $this->db->prepare("
+                DELETE FROM `queue` WHERE `id_place` = :id_place
+            ");
+            return $delete->execute($params);
+        }
+        
+        public function getSisaAntrean($params) {
+
+            $select = $this->db->prepare("
+                SELECT count(*) FROM `queue` WHERE `id_place` = :id_place and `status` = 'waiting'
+            ");
+            $select->execute($params);
+            return $select->fetchColumn();  
         }
     }
 
