@@ -5,8 +5,8 @@
         public function getRegisterPlace ($params) {
 
             $insert = $this->db->prepare ("
-                INSERT INTO `place` (`id_place`, `name`, `address`, `picture`, `id_user`,`status`,`inisial`) 
-                VALUES (NULL, :name, :address, :picture, :id_user , 'open', :inisial)
+                INSERT INTO `place` (`id_place`, `name_place`, `address`, `picture`, `id_user`,`status`,`inisial`) 
+                VALUES (NULL, :name_place, :address, :picture, :id_user , 'open', :name_place)
             ");
     
             return $insert->execute ($params);
@@ -16,7 +16,8 @@
         public function getQueue ($params) {
 
             $insert = $this->db->prepare ("
-                INSERT INTO `queue` (`id_place`, `id_user`, `queue_code`, `status`, `id_queue`) VALUES (:id_place, :id_user, :queue_code, 'waiting', NULL)
+                INSERT INTO `queue` (`id_place`, `id_user`, `queue_code`, `status`, `id_queue`) 
+                VALUES (:id_place, :id_user, :queue_code, 'waiting', NULL)
             ");
     
             return $insert->execute ($params);
@@ -48,8 +49,9 @@
         public function getMyQueue($params)
         {
             $select = $this->db->prepare("
-                SELECT * FROM place p, queue q, user u WHERE p.id_place = q.id_place AND u.id_user = q.id_user 
-                AND u.id_user = :id_user
+                SELECT * FROM place p, queue q, user u WHERE p.id_place = q.id_place 
+                AND u.id_user = q.id_user 
+                AND u.id_user = :id_user AND q.status = 'waiting'
             ");
             $select->execute($params);
             

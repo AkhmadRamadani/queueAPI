@@ -67,10 +67,11 @@
             $this->initModel('place');
 
                 $insert = $this->placeModel->getRegisterPlace (array(
-                    ":name" => $this->params['name'],
+                    ":name_place" => $this->params['name_place'],
                     ":address" => $this->params['address'],
                     ":picture" => $filename,
-                    ":id_user" => $this->params['id_user']
+                    ":id_user" => $this->params['id_user'],
+                    ":inisial" => $this->params['name_place']
                 ));
                 if($insert){
                     return $response->withJSON(array(
@@ -243,7 +244,8 @@
             ));
             if($insert){
                 return $response->withJSON(array(
-                    "status" => true
+                    "status" => true,
+                    "data" => $IDbaru
                 ));
             }
             return $response->withJSON(array(
@@ -281,9 +283,7 @@
             $select = $this->placeModel->getSisaAntrean(array(
                 ":id_place" => $this->params['id_place']
             ));
-            return $response->withJSON(array(
-                "data" => $select
-            ));
+            return $response->withJSON(["data" => $select]);
         }
         public function getOnProcessKode($request , $response , $args)
         {
