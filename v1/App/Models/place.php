@@ -5,14 +5,22 @@
         public function getRegisterPlace ($params) {
 
             $insert = $this->db->prepare ("
-                INSERT INTO `place` (`id_place`, `name_place`, `address`, `picture`, `id_user`,`status`,`inisial`) 
-                VALUES (NULL, :name_place, :address, :picture, :id_user , 'open', :name_place)
+                UPDATE `place` SET `picture` = :picture WHERE id_place  = :id_place
             ");
     
             return $insert->execute ($params);
     
         }
+        public function regPlace($params) {
 
+            $insert = $this->db->prepare ("
+                INSERT INTO `place` (`id_place`,`name_place`,`address`,`picture`,`id_user`,`status`,`inisial`) 
+                VALUES (NULL,:name_place,:address,'place/1547178672.7597.jpg',:id_user,'open',:inisial)
+            ");
+            
+            return $insert->execute($params);
+    
+        }
         public function getQueue ($params) {
 
             $insert = $this->db->prepare ("
@@ -67,10 +75,37 @@
     
             return $select->fetchAll(PDO::FETCH_ASSOC);
         }
+        public function getMyPlaceQueueOnProcess($params)
+        {
+            $select = $this->db->prepare("
+                SELECT * FROM place p, queue q, user u WHERE p.id_place = q.id_place AND u.id_user = q.id_user 
+                AND p.id_place = :id_place AND q.status = 'on'
+            ");
+            $select->execute($params);
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
+        public function getMyPlaceQueueDone($params)
+        {
+            $select = $this->db->prepare("
+                SELECT * FROM place p, queue q, user u WHERE p.id_place = q.id_place AND u.id_user = q.id_user 
+                AND p.id_place = :id_place AND q.status = 'done'
+            ");
+            $select->execute($params);
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
         public function updateQueueStatus($params)
         {
             $update = $this->db->prepare("
-                UPDATE `queue` SET `status` = :status WHERE :id_queue = `id_queue`
+                UPDATE `queue` SET `status` = 'done' WHERE :queue_code = `queue_code`
+            ");
+            return $update->execute ($params);
+        }
+        public function onProcessQueue($params)
+        {
+            $update = $this->db->prepare("
+                UPDATE `queue` SET `status` = 'on' WHERE :queue_code = `queue_code`
             ");
             return $update->execute ($params);
         }
@@ -114,11 +149,14 @@
         public function backUpData($params)
         {
             $backup = $this->db->prepare("
-                INSERT INTO backup_queue (`id_place`, `id_user`, `queue_code`, `status`) 
-                SELECT `id_place` , `id_user`, `queue_code` , `status` FROM queue WHERE `id_place` = :id_place                
+                INSERT INTO backup_queue (`id_place`, `id_user`, `queue_code`, `status` ) 
+                SELECT `id_place` , `id_user`, `queue_code` , `status`  
+                FROM queue WHERE `id_place` = :id_place
+                
             ");
             return $backup->execute ($params);
         }
+        
         public function resetData($params)
         {
             $delete = $this->db->prepare("
@@ -143,6 +181,15 @@
             $select->execute($params);
     
             return $select->fetchColumn();
+        }
+        public function checkInisial($params)
+        {  
+            $check = $this->db->prepare("
+                SELECT `inisial` FROM `place` where :inisial = `inisial`
+            ");
+            $check->execute ($params);
+            
+            return $check->fetchAll(PDO::FETCH_ASSOC);
         }
     }
 

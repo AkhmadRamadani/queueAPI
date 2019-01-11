@@ -1,11 +1,15 @@
 <?php
 
-    $this->post ('/placeReg', \Place::class . ":placeRegister");
+    $this->post ('/placeRegImage', \Place::class . ":placeRegisterImage");
+    $this->post ('/regPlace', \Place::class . ":placeRegister");
     $this->post ('/updateQueueStatus', \Place::class . ":updateQueueStatus");
+    $this->post ('/onProcessQueue', \Place::class . ":onProcessQueue");
     $this->post ('/updatePlaceStatus', \Place::class . ":updatePlaceStatus");
     $this->post ('/getQueue', \Place::class . ":getQueue");
     $this->post ('/cancelQueue', \Place::class . ":cancelingQueue");
     $this->post ('/getMyPlaceQueue', \Place::class . ":getMyPlaceQueue");
+    $this->post ('/getMyPlaceQueueOnProcess', \Place::class . ":getMyPlaceQueueOnProcess");
+    $this->post ('/doneProcessQueue', \Place::class . ":getMyPlaceQueueDone");
     $this->post ('/getMyQueue', \Place::class . ":getMyQueue");
     $this->post ('/search', \Place::class . ":searchPlace");
     $this->post ('/getMyPlace', \Place::class . ":getMyPlace");
@@ -18,6 +22,41 @@
     class Place extends Queue
     {
         public function placeRegister($request, $response, $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $data = $this->placeModel->checkInisial(array(
+                ":inisial" => $this->params['inisial'],
+                ));
+   
+               if($data){
+                   return $response->withJSON(array(
+                       "status" => false,
+                       "message" => 'Inisial sudah ada'
+                   ));
+               }else{
+                    $this->params = $request->getParsedBody();
+                    $this->initModel('place');
+
+                        $insert = $this->placeModel->regPlace (array(
+                            ":name_place" => $this->params['name_place'],
+                            ":address" => $this->params['address'],
+                            ":id_user" => $this->params['id_user'],
+                            ":inisial" => $this->params['inisial']
+                        ));
+                        if($insert){
+                            return $response->withJSON(array(
+                                "status" => true,
+                                "data" => $insert
+                            ));
+                        }
+                        return $response->withJSON(array(
+                            "status" => false,
+                            "message" => 'register gagal'
+                ));}
+
+        }
+        public function placeRegisterImage($request, $response, $args)
         {
             
         $picture='';
@@ -54,34 +93,28 @@
                 $imgNameRand = basename(microtime(true).".".$extension);
                 $tmp=imagecreatetruecolor($width,$height);
                 imagecopyresampled($tmp,$src,0,0,0,0,$width,$height,$width,$height);
-                $filename = "./place/". $imgNameRand;
+                $filename = "place/". $imgNameRand;
                 imagejpeg($tmp, $filename, 100);
 
                 imagedestroy($src);
                 imagedestroy($tmp);
             }
-            //
-            //
+                $this->params = $request->getParsedBody();
+                $this->initModel('place');
 
-            $this->params = $request->getParsedBody();
-            $this->initModel('place');
-
-                $insert = $this->placeModel->getRegisterPlace (array(
-                    ":name_place" => $this->params['name_place'],
-                    ":address" => $this->params['address'],
-                    ":picture" => $filename,
-                    ":id_user" => $this->params['id_user'],
-                    ":inisial" => $this->params['name_place']
-                ));
-                if($insert){
-                    return $response->withJSON(array(
-                        "status" => true,
-
+                    $insert = $this->placeModel->getRegisterPlace (array(
+                        ":picture" => $filename,
+                        ":id_place" => $this->params['id_place'],
                     ));
-                }
-                return $response->withJSON(array(
-                    "status" => false,
-                    "message" => 'register gagal'
+                    if($insert){
+                        return $response->withJSON(array(
+                            "status" => true,
+                            "data" => $insert
+                        ));
+                    }
+                    return $response->withJSON(array(
+                        "status" => false,
+                        "message" => 'register gagal'
                 ));
         }
 
@@ -177,14 +210,35 @@
                 "data" => $select
             ));
         }
+        public function getMyPlaceQueueOnProcess($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $select = $this->placeModel->getMyPlaceQueueOnProcess(array(
+                ':id_place' => $this->params['id_place']
+            ));
+            return $response->withJSON(array(
+                "data" => $select
+            ));
+        }
+        public function getMyPlaceQueueDone($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $select = $this->placeModel->getMyPlaceQueueDone(array(
+                ':id_place' => $this->params['id_place']
+            ));
+            return $response->withJSON(array(
+                "data" => $select
+            ));
+        }
         public function updateQueueStatus($request , $response , $args)
         {
             $this->params = $request->getParsedBody();
             $this->initModel('place');
 
             $insert = $this->placeModel->updateQueueStatus(array(
-                ":id_queue" => $this->params['id_queue'],
-                ":status" => $this->params['status']
+                ":queue_code" => $this->params['queue_code']
             ));
             if($insert){
                 return $response->withJSON(array(
@@ -294,6 +348,25 @@
             ));
             return $response->withJSON(array(
                  "data"=> $select
+            ));
+        }
+        public function onProcessQueue($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+
+            $insert = $this->placeModel->onProcessQueue(array(
+                ":queue_code" => $this->params['queue_code']
+            ));
+            if($insert){
+                return $response->withJSON(array(
+                    "status" => true,
+
+                ));
+            }
+            return $response->withJSON(array(
+                "status" => false,
+                "message" => 'update gagal'
             ));
         }
     }
