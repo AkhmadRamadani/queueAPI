@@ -13,9 +13,11 @@
     $this->post ('/getMyQueue', \Place::class . ":getMyQueue");
     $this->post ('/search', \Place::class . ":searchPlace");
     $this->post ('/getMyPlace', \Place::class . ":getMyPlace");
+    $this->post ('/getMyPlaceData', \Place::class . ":getMyPlaceData");
     $this->post ('/resetQueue', \Place::class . ":resetQueue");
     $this->get ('/openPlace', \Place::class . ":getOpenPlace");
     $this->post ('/takeQueue', \Place::class . ":takeQueue");
+    $this->post ('/deletePlace', \Place::class . ":deletePlace");
     $this->post ('/getOnProcessKode', \Place::class . ":getOnProcessKode");
     $this->post ('/sisaAntrean', \Place::class . ":getSisaAntrean");
 
@@ -122,24 +124,37 @@
 
             $this->params = $request->getParsedBody();
             $this->initModel('place');
-
-                $insert = $this->placeModel->getQueue (array(
-                    ":id_place" => $this->params['id_place'],
-                    ":id_user" => $this->params['id_user'],
-                    ":queue_code" => $this->params['queue_code'],
-                    ":status" => $this->params['status']
+            $data = $this->placeModel->checkQueue(array(
+                ":queue_code" => $this->params['queue_code'],
                 ));
-                if($insert){
-                    return $response->withJSON(array(
-                        "status" => true,
+   
+               if($data){
+                   return $response->withJSON(array(
+                       "status" => false,
+                       "message" => 'Inisial sudah ada'
+                   ));
+               }else{
+                    $this->params = $request->getParsedBody();
+                    $this->initModel('place');
 
-                    ));
-                }
-                return $response->withJSON(array(
-                    "status" => false,
-                    "message" => 'register gagal'
-                ));
+                        $insert = $this->placeModel->getQueue (array(
+                            ":id_place" => $this->params['id_place'],
+                            ":id_user" => $this->params['id_user'],
+                            ":queue_code" => $this->params['queue_code'],
+                            ":status" => $this->params['status']
+                        ));
+                        if($insert){
+                            return $response->withJSON(array(
+                                "status" => true,
 
+                            ));
+                        }
+                        return $response->withJSON(array(
+                            "status" => false,
+                            "message" => 'register gagal'
+                        ));
+
+            }
         }
         public function updatePlaceStatus($request , $response , $args)
         {
@@ -195,7 +210,14 @@
             $select = $this->placeModel->getMyQueue(array(
                 ':id_user' => $this->params['id_user']
             ));
+            if ($select) {
+                return $response->withJSON(array(
+                    "status" => true,
+                    "data" => $select
+                ));
+            }
             return $response->withJSON(array(
+                "status" => false,
                 "data" => $select
             ));
         }
@@ -256,9 +278,16 @@
             $this->params = $request->getParsedBody();
             $this->initModel('place');
             $select = $this->placeModel->searchPlace(array(
-                ':name' => $this->params['name']
+                ':name_place' => $this->params['name_place']
             ));
+            if ($select) {
+                return $response->withJSON(array(
+                    "status" => true,
+                    "data" => $select
+                ));
+            }
             return $response->withJSON(array(
+                "status" => false,
                 "data" => $select
             ));
         }
@@ -268,6 +297,24 @@
             $this->initModel('place');
             $select = $this->placeModel->getMyPlace(array(
                 ':id_user' => $this->params['id_user']
+            ));
+            if ($select) {
+                return $response->withJSON(array(
+                    "status" => true,
+                    "data" => $select
+                ));
+            }
+            return $response->withJSON(array(
+                "status" => false
+            ));
+        }
+        public function getMyPlaceData($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $select = $this->placeModel->getMyPlaceData(array(
+                ':id_user' => $this->params['id_user'],
+                ':id_place' => $this->params['id_place'],
             ));
             if ($select) {
                 return $response->withJSON(array(
@@ -305,7 +352,6 @@
             return $response->withJSON(array(
                 "status" => false
             ));
-
         }
         public function resetQueue($request , $response , $args)
         {
@@ -329,7 +375,24 @@
                 "message" => 'cancel gagal'
             ));
         }
-        
+        public function deletePlace($request , $response , $args)
+        {
+            $this->params = $request->getParsedBody();
+            $this->initModel('place');
+            $delete = $this->placeModel->deletePlace(array(
+                ":id_place" => $this->params['id_place']
+            ));
+            if($delete){
+                return $response->withJSON(array(
+                    "status" => true
+                ));
+                
+            }
+            return $response->withJSON(array(
+                "status" => false,
+                "message" => 'cancel gagal'
+            ));
+        }
         public function getSisaAntrean($request , $response , $args)
         {
             $this->params = $request->getParsedBody();

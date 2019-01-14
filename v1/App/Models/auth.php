@@ -17,7 +17,7 @@
 
             $insert = $this->db->prepare ("
                 INSERT INTO `user` (`id_user`, `name`, `email`, `password`, `photoprofile`, `level`)
-                 VALUES (NULL, :name, :email, :password, 'profile/man.png' , 'user')
+                 VALUES (NULL, :name, :email, :password, 'profile/user.png' , 'user')
             ");
     
             return $insert->execute ($params);

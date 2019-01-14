@@ -15,7 +15,7 @@
 
             $insert = $this->db->prepare ("
                 INSERT INTO `place` (`id_place`,`name_place`,`address`,`picture`,`id_user`,`status`,`inisial`) 
-                VALUES (NULL,:name_place,:address,'place/1547178672.7597.jpg',:id_user,'open',:inisial)
+                VALUES (NULL,:name_place,:address,'place/place.png',:id_user,'open',:inisial)
             ");
             
             return $insert->execute($params);
@@ -41,7 +41,7 @@
         public function cancelingQueue($params)
         {
             $delete = $this->db->prepare("
-                DELETE FROM `queue` WHERE :queue_code = `queue_code`
+                UPDATE `queue` SET status = 'cancel' WHERE queue_code = :queue_code
             ");
             return $delete->execute ($params);
         }
@@ -51,6 +51,16 @@
                 SELECT * from `place` WHERE `status` = 'open' 
             ");
             $select->execute();
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
+        
+        public function getAllMyPlace($params)
+        {
+            $select = $this->db->prepare("
+                SELECT * from `place` WHERE `id_user` = :id_user 
+            ");
+            $select->execute($params);
     
             return $select->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -104,14 +114,12 @@
         }
         public function onProcessQueue($params)
         {
-            $update = $this->db->prepare("
-                UPDATE `queue` SET `status` = 'on' WHERE :queue_code = `queue_code`
-            ");
+            $update = $this->db->prepare("UPDATE `queue` SET `status` = 'on' WHERE :queue_code = `queue_code`");
             return $update->execute ($params);
         }
         public function searchPlace($params)
         {
-            $sql = " SELECT * FROM place WHERE name LIKE '%:name%' ";
+            $sql = " SELECT * FROM `place` WHERE `name_place` LIKE '%:name_place%' AND `status` = 'open' ";
            foreach( $params AS $key => $value ) {
                 $sql = str_replace( $key, $value, $sql );
             }
@@ -125,6 +133,15 @@
         {
             $select = $this->db->prepare("
                 SELECT * from `place` WHERE `id_user` = :id_user 
+            ");
+            $select->execute($params);
+    
+            return $select->fetchAll(PDO::FETCH_ASSOC);
+        }
+        public function getMyPlaceData($params)
+        {
+            $select = $this->db->prepare("
+                SELECT * from `place` WHERE `id_user` = :id_user AND id_place = :id_place 
             ");
             $select->execute($params);
     
@@ -190,6 +207,23 @@
             $check->execute ($params);
             
             return $check->fetchAll(PDO::FETCH_ASSOC);
+        }
+        public function checkQueue($params)
+        {  
+            $check = $this->db->prepare("
+                SELECT `queue_code` FROM `queue` where :queue_code = `queue_code`
+            ");
+            $check->execute ($params);
+            
+            return $check->fetchAll(PDO::FETCH_ASSOC);
+        }
+        
+        public function deletePlace($params)
+        {
+            $delete = $this->db->prepare("
+                DELETE FROM `place` WHERE `id_place` = :id_place
+            ");
+            return $delete->execute($params);
         }
     }
 
